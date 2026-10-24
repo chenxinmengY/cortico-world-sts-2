@@ -32,6 +32,36 @@
 | [dev/token-cost-notes.md](dev/token-cost-notes.md) | 为什么这样设计上下文：O(n²) 与实测数据 |
 | [dev/sts2-learn-from-bili.md](dev/sts2-learn-from-bili.md) | 一个没做完的设想：从攻略视频采打法 |
 
+## 仓库长这样
+
+```
+cortico-world-sts-2/
+├─ src/                 源码，按层分（读局面 / 传输 / 渲染 / 流程）
+│  ├─ protocol.ts       桥的 JSON → 统一结构；动作 → 编号；回档检测
+│  ├─ bridge.ts         HTTP + SSE、重连、断线后轮询兜底
+│  ├─ render.ts         局面 → 几百字文本（只报变化段）
+│  ├─ world.ts          编号仲裁、停手/观战、空动作宽限、事件、求解器接管
+│  ├─ config.ts         46 个配置项（含默认值 + 设置页 schema）
+│  ├─ tools.ts          10 个工具的声明
+│  ├─ definition.ts     把上面这些装配成 World
+│  ├─ solver.ts         求解器注记与接管
+│  ├─ chatter.ts        台词池与档位（观战用 watch，自己打用 self）
+│  ├─ passport.ts       回档 / 换局 / 漂移判定
+│  ├─ savefile.ts       只读存档里的两个字段
+│  ├─ intent.ts         这一局的构筑意图
+│  ├─ auto.ts           没得选时替玩家推进
+│  └─ ENV_PROMPT.md     给模型的环境提示词
+├─ tests/               163 个用例 + 来自真机抓包的 fixtures
+├─ scripts/             抓包、探针、生成 describe.json 与依赖清单
+├─ docs/                就是你在读的这套（01–07 + dev/）
+├─ .github/             CI、Release、issue / PR 模板
+├─ describe.json        工具/事件/提示词的清单（由 pnpm describe 生成）
+├─ CHANGELOG.md         27 个版本的真实记录，含踩过的坑
+└─ README.md            门面 + 完整技术细节
+```
+
+不想看结构，只想改东西：先读 [CONTRIBUTING](../CONTRIBUTING.md) 的「加一个新动作要改四处」。
+
 ## 约定
 
 - 命令一律可粘贴，路径用 `<你的插件目录>` / `<Coopanion 安装目录>` 占位；
