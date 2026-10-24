@@ -1,6 +1,8 @@
-# pnpm 11 起，这类设置只读这里，不再读 package.json 的 "pnpm" 字段
-onlyBuiltDependencies:
-  - esbuild
+# pnpm 11 起，这类设置只读这里，不再读 package.json 的 "pnpm" 字段。
+# 这里放行 esbuild 的安装脚本：它是 vitest 的依赖，靠 postinstall 放好二进制。
+# 不写这一行，CI 上 install 会以 ERR_PNPM_IGNORED_BUILDS 退出 1（本地不设 CI 时只是警告）。
+allowBuilds:
+  esbuild: true
 
 minimumReleaseAgeExclude:
   - cortico@0.2.5
