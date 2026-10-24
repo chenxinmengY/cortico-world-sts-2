@@ -1,0 +1,13 @@
+* text=auto eol=lf
+
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+*.png binary
+*.json text eol=lf
+
+# 生成物：在 diff 里折叠，看的时候点开
+describe.json linguist-generated=true
+pnpm-lock.yaml linguist-generated=true
+
+# 文档默认语言（GitHub 统计用）
+*.md text diff=markdown

@@ -1,0 +1,93 @@
+name: Bug 报告
+description: 她卡住了、打错了、不动了、或者哪一屏读不懂
+title: "[bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        先说一句：**带一份抓包比写十行描述有用**。
+        采法：`.\scripts\dump-state.cmd`，文件会落在 `samples\`，把那份 json 拖进来即可。
+
+  - type: input
+    id: version
+    attributes:
+      label: 插件版本
+      description: package.json 里的 version，或 Release 页的 tag
+      placeholder: 0.1.29
+    validations:
+      required: true
+
+  - type: input
+    id: host
+    attributes:
+      label: 宿主版本
+      placeholder: Coopanion 0.2.8
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bridge
+    attributes:
+      label: 用的哪个桥
+      options:
+        - NekoSpire（猫娘尖塔）
+        - sts2-mcp-bridge / Communication_Mod
+        - 其他 / 自己写的
+        - 不确定
+    validations:
+      required: true
+
+  - type: dropdown
+    id: screen
+    attributes:
+      label: 出问题的界面
+      options:
+        - 战斗
+        - 地图 / 选路
+        - 选牌 / 奖励
+        - 商店
+        - 篝火
+        - 宝箱
+        - 事件
+        - 主菜单 / 选角色
+        - 不确定
+    validations:
+      required: true
+
+  - type: dropdown
+    id: symptom
+    attributes:
+      label: 症状
+      options:
+        - 她完全不动
+        - 动了但被游戏拒绝
+        - 动作循环重复 / 卡在同一屏
+        - 界面读不懂（动作数为 0）
+        - 求解器接管后卡住
+        - 气泡/台词不出现
+        - 连不上桥
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: 发生了什么
+      description: 越具体越好：屏幕上写着什么、她说了什么、你等了几秒
+    validations:
+      required: true
+
+  - type: textarea
+    id: probe
+    attributes:
+      label: sts2_probe 输出（可选）
+      description: 把 `devTools` 打开一次，让她调 `sts2_probe`，把那段贴进来
+      render: json
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志（可选）
+      description: 数据目录下的 `sts2-bridge.jsonl`，最后 20 行就够

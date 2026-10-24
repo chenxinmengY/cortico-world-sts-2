@@ -1,0 +1,54 @@
+{
+  "name": "cortico-world-sts-2",
+  "version": "0.1.29",
+  "type": "module",
+  "description": "Slay the Spire 2 World for Cortico: the pet plays the run through an in-game HTTP bridge",
+  "license": "MIT",
+  "author": "chenxinmengY",
+  "keywords": [
+    "cortico-world",
+    "cortico",
+    "slay-the-spire-2",
+    "desktop-pet",
+    "llm-agent",
+    "game-agent"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chenxinmengY/cortico-world-sts-2.git"
+  },
+  "homepage": "https://github.com/chenxinmengY/cortico-world-sts-2#readme",
+  "bugs": {
+    "url": "https://github.com/chenxinmengY/cortico-world-sts-2/issues"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "main": "./src/index.ts",
+  "cortico": {
+    "kind": "world",
+    "api": 6,
+    "describe": "describe.json"
+  },
+  "files": [
+    "src",
+    "describe.json",
+    "README.md",
+    "CHANGELOG.md",
+    "THIRD_PARTY_NOTICES.md"
+  ],
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "describe": "tsx scripts/gen-describe.mjs",
+    "notices": "tsx scripts/gen-notices.mjs",
+    "check": "tsc --noEmit && vitest run"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "cortico": "^0.2.5",
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  }
+}

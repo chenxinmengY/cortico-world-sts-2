@@ -1,0 +1,6 @@
+# pnpm 11 起，这类设置只读这里，不再读 package.json 的 "pnpm" 字段
+onlyBuiltDependencies:
+  - esbuild
+
+minimumReleaseAgeExclude:
+  - cortico@0.2.5

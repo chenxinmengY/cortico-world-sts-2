@@ -1,0 +1,17 @@
+node_modules/
+*.log
+.env
+.env.*
+.DS_Store
+coverage/
+samples/
+
+# 临时抓包与本地草稿：这些含真机数据，不要提交
+*.tmp.json
+tmp/
+*.tmp.ts
+*.tmp.md
+
+# 编辑器
+.vscode/
+.idea/

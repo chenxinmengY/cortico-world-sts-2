@@ -1,0 +1,82 @@
+{
+  "ok": true,
+  "request_id": "req_20261023_012452_3449_20",
+  "data": {
+    "in_combat": true,
+    "turn": 4,
+    "score": 10002015988,
+    "state_fingerprint": "9956E57F2CF60463",
+    "line": [
+      {
+        "turn": 1,
+        "steps": [
+          {
+            "kind": "play_card",
+            "card_index": 1,
+            "card_id": "STRIKE_IRONCLAD",
+            "card_name": "打击",
+            "target_index": 0,
+            "choice_card_id": null,
+            "choice_card_name": null
+          },
+          {
+            "kind": "play_card",
+            "card_index": 0,
+            "card_id": "ONE_TWO_PUNCH",
+            "card_name": "连环拳",
+            "target_index": null,
+            "choice_card_id": null,
+            "choice_card_name": null
+          },
+          {
+            "kind": "end_turn",
+            "card_index": null,
+            "card_id": "",
+            "card_name": "",
+            "target_index": null,
+            "choice_card_id": null,
+            "choice_card_name": null
+          }
+        ]
+      },
+      {
+        "turn": 2,
+        "steps": [
+          {
+            "kind": "play_card",
+            "card_index": null,
+            "card_id": "STRIKE_IRONCLAD",
+            "card_name": "打击",
+            "target_index": 0,
+            "choice_card_id": null,
+            "choice_card_name": null
+          }
+        ]
+      }
+    ],
+    "beam_width": 40,
+    "horizon": 4,
+    "max_turn_actions": 32,
+    "draw_model": "combatsolver",
+    "warnings": [
+      "search_gap_inferred:BASH.OnPlay",
+      "inferred:ONE_TWO_PUNCH.OnPlay",
+      "coverage_scope:hand=5:classified=5"
+    ],
+    "coverage": {
+      "exact": 4,
+      "inferred": 1,
+      "unsupported": 0,
+      "ignored": 0,
+      "potions": 0,
+      "risk": false
+    },
+    "win_prob": 1,
+    "search_status": "complete",
+    "budget_ms": 755,
+    "nodes_expanded": 767,
+    "rollouts_total": 767,
+    "confidence": 0.9,
+    "policy_explanation": "打出「打击」。"
+  }
+}

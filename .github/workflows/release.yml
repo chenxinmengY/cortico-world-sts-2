@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: '要发布的 tag（已存在的才填）'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm check
+
+      - name: 打包（不含 node_modules / samples / 测试夹具）
+        run: |
+          git archive --format=zip --prefix="cortico-world-sts-2/" \
+            --output="cortico-world-sts-2-${GITHUB_REF_NAME}.zip" HEAD
+
+      - name: 从 CHANGELOG 摘出本次版本的说明
+        run: |
+          node -e '
+            const fs = require("fs");
+            const tag = process.env.GITHUB_REF_NAME || "";
+            const text = fs.readFileSync("CHANGELOG.md", "utf8");
+            const v = tag.replace(/^v/, "");
+            const esc = v.replace(/\./g, "\\.");
+            const re = new RegExp("^##\\\\s*" + esc + "\\\\s*$", "m");
+            const m = re.exec(text);
+            if (!m) { console.log("未在 CHANGELOG 找到该版本，用全文前 2000 字代替"); process.exit(0); }
+            const body = text.slice(m.index + m[0].length);
+            const next = body.search(/^##\s/m);
+            fs.writeFileSync("release-notes.md", (next === -1 ? body : body.slice(0, next)).trim());
+          '
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          body_path: release-notes.md
+          files: cortico-world-sts-2-*.zip
+          draft: false
+          generate_release_notes: true

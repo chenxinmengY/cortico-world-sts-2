@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 类型检查
+        run: pnpm typecheck
+
+      - name: 单元测试
+        run: pnpm test
+
+      - name: describe.json 是否与源码一致
+        run: |
+          pnpm describe
+          if ! git diff --quiet -- describe.json; then
+            echo "::error::describe.json 已过期，请在本地跑 pnpm describe 并提交"
+            git diff -- describe.json | head -100
+            exit 1
+          fi
+
+      - name: 依赖清单是否与 package.json 一致
+        run: |
+          pnpm notices
+          if ! git diff --quiet -- THIRD_PARTY_NOTICES.md; then
+            echo "::error::THIRD_PARTY_NOTICES.md 已过期，请在本地跑 pnpm notices 并提交"
+            exit 1
+          fi

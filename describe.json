@@ -1,0 +1,349 @@
+{
+  "tools": [
+    {
+      "name": "sts2_observe",
+      "description": "重读当前局面和操作编号。每份回执和事件已经带了局面；正常对局不需要它，只在断线恢复后确认用。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "enum": [
+              "decision",
+              "full"
+            ],
+            "description": "默认只给当前决策所需；full 另含牌组、全图和牌堆内容。"
+          }
+        },
+        "additionalProperties": false
+      },
+      "tags": [
+        "read",
+        "snapshot"
+      ],
+      "summary": {
+        "zh": "重读当前局面和操作编号,可另含牌组与全图;默认不暴露,回执已带局面。",
+        "en": "Re-reads the current situation and numbered actions, optionally with the deck and map; hidden by default because receipts already carry the state."
+      }
+    },
+    {
+      "name": "sts2_inspect",
+      "description": "看牌组、地图或完整局面。局面和编号已经随回执给出；只在需要牌组构成、全图这类长期信息时调用。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "what": {
+            "type": "string",
+            "enum": [
+              "deck",
+              "map",
+              "full"
+            ],
+            "description": "deck=牌组构成，map=全图，full=完整局面（也含牌组与地图）。"
+          }
+        },
+        "required": [
+          "what"
+        ],
+        "additionalProperties": false
+      },
+      "tags": [
+        "read",
+        "snapshot"
+      ],
+      "summary": {
+        "zh": "看牌组、地图或完整局面;只在需要长期信息时用,局面本身随回执给出。",
+        "en": "Looks at the deck, the map or the full state on demand; the situation itself arrives with every receipt."
+      }
+    },
+    {
+      "name": "sts2_do",
+      "description": "用最新状态码和操作编号执行一个动作，并等它结算。回执报告结果与变化；一轮只调用一次。战斗里要打多张牌用 sts2_play，不要一张一张 do。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "最近快照标题里的状态码，原样复制。"
+          },
+          "action": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "快照里标出的操作编号。"
+          }
+        },
+        "required": [
+          "state",
+          "action"
+        ],
+        "additionalProperties": false
+      },
+      "tags": [
+        "act"
+      ],
+      "summary": {
+        "zh": "按编号执行一个操作(出牌、选路线、领奖励等),等结算后回报结果与变化。",
+        "en": "Performs one numbered action such as playing a card or choosing a path, and reports the result once it resolves."
+      }
+    },
+    {
+      "name": "sts2_pause",
+      "description": "停手：不再推送局面，等你发话。她已经提交出去的那一步不会被撤回。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "description": "为什么停，一句话就够。"
+          }
+        },
+        "additionalProperties": false
+      },
+      "tags": [
+        "flow"
+      ],
+      "summary": {
+        "zh": "停手,不再推送局面,等你发话。",
+        "en": "Stops acting and stops pushing state until told to resume."
+      }
+    },
+    {
+      "name": "sts2_resume",
+      "description": "恢复：重新读取当前局面并继续自己打。",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "tags": [
+        "flow"
+      ],
+      "summary": {
+        "zh": "恢复自动推进,先重读一次局面。",
+        "en": "Resumes autonomous play after re-reading the state."
+      }
+    },
+    {
+      "name": "sts2_play",
+      "description": "一次提交多步（推荐战斗里用）：按顺序执行到打不动为止，只回一份回执。牌用名字指定，编号由底下自己解析。只有「选牌屏」（画面写着“选择 N 张牌”）才用 {select:编号}，而且要一次列全；奖励、选角色、事件这些屏一律用 sts2_do 的编号一个个来。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string",
+            "description": "最近快照标题里的状态码，原样复制。"
+          },
+          "steps": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 8,
+            "description": "按顺序执行；每步要么出牌（card + target），要么结束回合（endTurn），要么选牌（select）。",
+            "items": {
+              "type": "object",
+              "properties": {
+                "card": {
+                  "type": "string",
+                  "description": "要打出的牌名，照手牌写，例如「打击」。"
+                },
+                "target": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "目标敌人编号；不需要目标的牌省略。"
+                },
+                "endTurn": {
+                  "type": "boolean",
+                  "description": "true 表示结束回合；和 card 二选一。"
+                },
+                "select": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "只在选牌屏用：第几个选项。要多选就一次列全，例如 [{select:1},{select:2}]。"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "state",
+          "steps"
+        ],
+        "additionalProperties": false
+      },
+      "tags": [
+        "act"
+      ],
+      "summary": {
+        "zh": "一次提交多步(整回合),按顺序执行到打不动为止,只回一份回执。",
+        "en": "Submits a whole turn of steps at once and stops at the first step that no longer works."
+      }
+    },
+    {
+      "name": "sts2_steer",
+      "description": "把玩家的话记成一条临时指令（例如“这层别打精英”），之后每份局面都会带上它。传空字符串清掉。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "description": "玩家原话的要点，一句话；空字符串表示撤销。"
+          },
+          "until": {
+            "type": "string",
+            "enum": [
+              "next",
+              "floor",
+              "screen",
+              "manual"
+            ],
+            "description": "有效范围：下一步 / 本层 / 本界面 / 直到撤销。默认 floor。"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "additionalProperties": false
+      },
+      "tags": [
+        "flow"
+      ],
+      "summary": {
+        "zh": "把玩家的话记成一条临时指令(下一步/本层/本界面/直到撤销),之后每份局面都会带上。",
+        "en": "Records the player's remark as a scoped instruction that rides along with every later snapshot."
+      }
+    },
+    {
+      "name": "sts2_intent",
+      "description": "记下这一局的构筑意图（例如“走毒、见催化剂必拿、药水留 boss”）。换局自动作废；传空字符串清掉。",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "一句到三句，只写意图，不要写牌面数值。"
+          }
+        },
+        "required": [
+          "note"
+        ],
+        "additionalProperties": false
+      },
+      "tags": [
+        "flow"
+      ],
+      "summary": {
+        "zh": "记下这一局的构筑意图;换局自动作废,传空字符串清掉。",
+        "en": "Stores this run's build intent; it expires with the run and an empty string clears it."
+      }
+    },
+    {
+      "name": "sts2_capture",
+      "description": "截取游戏画面，返回 PNG。桥没有截图接口时会明确失败，不编造画面。",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "tags": [
+        "read"
+      ],
+      "summary": {
+        "zh": "截取游戏画面;桥没有截图接口时明确失败。",
+        "en": "Takes a screenshot of the game; fails clearly when the bridge has no capture endpoint."
+      }
+    },
+    {
+      "name": "sts2_probe",
+      "description": "排障与校准：原样返回桥的 /state 片段和她读到的归一化摘要。只在状态读不懂、动作对不上时使用。",
+      "parameters": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "tags": [
+        "read"
+      ],
+      "summary": {
+        "zh": "排障用:原样返回桥的状态片段和归一化摘要。",
+        "en": "Diagnostics: dumps the bridge payload and the normalized summary."
+      }
+    }
+  ],
+  "events": [
+    {
+      "type": "sts-2.state",
+      "description": {
+        "zh": "局面变了,附新的局面和操作编号。",
+        "en": "The game state changed, with the new situation and numbered actions."
+      },
+      "trigger": "flush",
+      "tags": [
+        "snapshot"
+      ]
+    },
+    {
+      "type": "sts-2.decision",
+      "description": {
+        "zh": "她这一轮动过手,游戏仍在等输入。",
+        "en": "A reminder, after a turn that acted, that the game is still waiting for input."
+      },
+      "trigger": "flush"
+    },
+    {
+      "type": "sts-2.connection",
+      "description": {
+        "zh": "与游戏内桥的连接断开,已提交动作的结果可能未确认。",
+        "en": "The connection to the in-game bridge dropped; submitted action outcomes may be unconfirmed."
+      },
+      "trigger": "flush"
+    },
+    {
+      "type": "sts-2.blocked",
+      "description": {
+        "zh": "当前界面桥没有给出任何动作,需要人工点一下。",
+        "en": "The bridge exposed no action on this screen; a human needs to click."
+      },
+      "trigger": "flush"
+    },
+    {
+      "type": "sts-2.rollback",
+      "description": {
+        "zh": "检测到回档或重开(快速 SL、节点回退),之前的判断作废。",
+        "en": "A rollback or restart was detected; earlier conclusions are void."
+      },
+      "trigger": "flush"
+    },
+    {
+      "type": "sts-2.drift",
+      "description": {
+        "zh": "局面和她记的对不上,但没到回档;按现在这个来。",
+        "en": "The situation no longer matches what she remembered, short of a rollback; use the current state."
+      },
+      "trigger": "flush"
+    },
+    {
+      "type": "sts-2.auto",
+      "description": {
+        "zh": "这一屏没得选,她替玩家点了一个推进动作;或者求解器接管一整场战斗之后的一句摘要。",
+        "en": "The screen had no real choice, so she advanced it herself; or the one-line summary after the solver played a whole fight."
+      },
+      "trigger": "flush"
+    },
+    {
+      "type": "sts-2.murmur",
+      "description": {
+        "zh": "她偶尔的一句闲话(夸一句、喊一声疼);默认直接进桌宠气泡,不叫醒模型。",
+        "en": "A passing remark from her; by default it goes straight to the pet bubble without waking the model."
+      },
+      "trigger": "flush"
+    }
+  ],
+  "prompts": [
+    {
+      "key": "worlds.sts-2.envPrompt",
+      "title": "杀戮尖塔 2 · 环境提示词",
+      "role": "envPrompt",
+      "content": "你在自己玩《杀戮尖塔 2》：路线、出牌、奖励、商店都由你决定，不用等谁批准。\n\n快照标题 `[StS2 状态码 · 界面 · 可操作]` 里的短串是状态码，动作带编号。用\n`sts2_do({state:\"标题里的状态码\", action:3})` 执行一个动作，一轮只调用一次。\n编号只在那个状态码下有效；下一个动作要用最新回执标题里的状态码。过期会被拒，并附一份新状态。\n\n回执三种结果：\n\n- 「已执行」：输入已提交并走到下一个决策点；选牌弹窗也算决策点。\n- 「已排上队」：桥收到了但还没结算完（选牌屏常见）。这**不是**\"已经做了\"：先看它附的局面，别拿同一步反复提交。\n- 「未执行」：没提交（状态过期、目标已死、界面没有这个操作）。按附的状态重新决定，不要重试同一个编号。\n- 「结果未确认」：输入可能到了也可能没到。等下一份局面；确实没有就 `sts2_inspect({what:\"full\"})` 重读，不要假设它没发生。\n\n标着「变化」的回执只列出改动的部分，没列的内容和编号沿用上一份。新回合总会重列敌人当前意图。\n切换界面、首次连接、上下文交接都给完整状态。**回执已经带了新局面和编号，不要为了\"看一眼\"再调工具**——\n多读一次局面就是多一整轮模型调用。真要看牌组构成、全图或完整局面，才用 `sts2_inspect({what:\"deck\"|\"map\"|\"full\"})`。\n\n编号就是唯一接口：你只给 `state` 和 `action`，底下填什么参数不用管。\n地图、奖励、商店、事件、休息这些界面，每个可选项各占一个编号，编号后面的文字就是那一条的内容。\n战斗里同一张牌打不同敌人是两个编号（`打击→敌0`、`打击→敌1`）；打不出的牌不占编号。\n「存档并退出」「放弃这局」这类动作不会出现在编号里，你也别想找它。\n\n**多选屏**（「选择 2 张牌来移除」这类）：桥一次只点一张，点同一张还会反选，所以**一张一张点会互相抵消**。\n要几张就一次列全：`sts2_play({state, steps:[{select:1},{select:2}]})`。局面里会写明要选几张，\n按它的提示提交，别用 `sts2_do` 单点。\n**`{select}` 只给选牌屏用**：奖励领取、选角色、事件这些屏一律用 `sts2_do` 的编号一项一项来\n（在这些屏上并行点好几个会把桥点崩，游戏 mod 直接 500）。\n\n**有人插话时**：那是打断，不是让你复述局势。她说什么就以什么为准——要你换思路就换，\n要你停就 `sts2_pause`，要你继续就 `sts2_resume`。没被叫住的时候，你自己连着打，不要每步都汇报。\n\n**没有动作的界面**：桥没给任何动作时你会收到 `sts-2.blocked`。那说明这一屏她读不到（例如某些选遗物屏），\n需要人手动点。此时停住、说一句「这屏我点不了，你点一下」，然后等；不要猜一个坐标硬点。\n\n**一次给一整轮**：战斗里**默认**用\n`sts2_play({state:\"…\", steps:[{card:\"打击\", target:0}, {card:\"防御\"}, {endTurn:true}]})`\n——一步顶三四个 `sts2_do`，一回合只占一轮。牌用**名字**写（照手牌抄，升级牌带 `+`），目标写敌人编号；\n底下会在每一步之前重新解析当前编号，打不动就停在那儿并把局面给你。只有\"打完这张要看结果再决定\"时才退回 `sts2_do` 单步。\n回执里已经带了新局面，**不要再补一次读取**。\n\n**防御只买到\"这回合不死\"**：\n1. 局面里「入射 / 最多可挡 / 缺口」已经算好，**别再自己加一遍**。\n2. 挡得住：挡到缺口归零就停，溢出不超过一张牌，剩下的能量打输出。\n3. 挡不住但不会死：别追求零伤，先看能不能斩杀或提速；只有必须保血线、保药水时才多垫防御。\n4. 挡不住且会死：先保命（最大防御 + 药水），再谈输出。\n\n**局面会攒着**：你还在想的时候，游戏里新的变化先攒住，等你下一次开口（或最多 8 秒）才一起给你，\n免得把你从思考里拽出来。所以收到的局面可能比屏幕晚一两秒，动手前先看「变化」那几行。\n\n**回档**：`sts-2.rollback` 表示有人用了快速 SL、节点回退或重开了局。\n之前算好的路线和牌序全部作废，按新状态重新判断，别沿用旧结论。\n\n**对不上**：`sts-2.drift` 表示局面和你记的不一样，但没到回档（例如刚在商店花过钱）。\n不作废计划，按现在这个局面继续，别在嘴上纠结。\n\n**兜底**：`sts-2.auto` 表示这一屏本来就没得选（只剩「继续/结束回合/打开宝箱」），她替你点了一个。\n不用解释、不用道谢，接着看新状态就行。\n\n**求解器**：局面尾部偶尔会有一行「求解器：下一步 → 3（打击→敌0）」。那是桥自带的战斗求解器给的第二个意见，\n只在它自己说\"看懂了这手牌\"时才出现。你可以采纳，也可以不采纳——不采纳时在动作里体现就行，不用解释。\n它不出现，通常是因为没算完、有它不认识的牌、或者置信不够。\n\n**战斗可能被接管**：战斗中她可能一句话都不说——桥自带的求解器正在替她一步一步打完，整场不叫醒你。\n结束时才会来一条 `sts-2.auto`：「这场我用求解器打完了（掉了 12 血，剩 44/80）。」或者\n「求解器替我打了 4 步（剩 26/80），剩下的交给你：血量到线了。」收到这种别复述、别重打，\n接着处理它交回来的奖励/地图；想自己接手就直接用回执里的编号动手。\n\n**主页和选角色不归你**：`继续上次的局`、`出发`、`选这个角色` 这些一步都不要自己点——\n玩家没说「开始 / 继续这局 / 去打吧」之前就待着，最多说一句「我在主页等你」。\n玩家说了再动，而且只动这一次；进了局里才轮到你连着打。\n\n**求解器接管时别插手**：那时候你不会收到局面，只会收到一条 `sts-2.auto` 摘要；\n要动手会被告知「先别插手」，等它把局面交回来再多。\n\n**玩家的话有两种记法**：\n- 临时要求（\"这层别打精英\"、\"这回合先上易伤\"）→ `sts2_steer({text, until})`，`until` 取 `next/floor/screen/manual`。\n  之后每份局面尾部会带一行「玩家指令（…）：…」，**以它为准**；玩家改口就再记一次，撤销就传空字符串。\n- 长期方向（\"我要走毒\"、\"药水留 boss\"）→ `sts2_intent({note})`。之后每份局面会带一行「构筑意图」，换局自动作废。\n\n**多人局**：界面会标「多人·主机 / 客户端」。地图是投票决定的：进图后先看「投票：P2 → (1,3)」那行，\n**队友已经投了就跟随多数**，没人投再自己选；不要当第一个点的人。World 会在你进图时先把地图压住\n（等玩家配的那几秒；配成 0 就一直等到队友先投票），队友一投票就提前放行，所以你收到地图时投票\n基本已经在上面了，按最新的投票来。万一一票都没有，那就自己挑一格——但别刚点完又改。\n界面写「等队友」时别重复点，等投票。要是收到「我在等队友先投票」，就是被压住了：别自己点、别重复问，\n等我推局面。战斗里各打各的手牌，你只操作属于自己的那份；队友在等的时候，推进型操作要尽快做。\n\n**你知道什么、不知道什么**：牌面、遗物、药水、敌人意图都来自可见状态；\n抽牌堆顺序、随机数、未揭示的牌按未知处理，不要假装知道。\n\n**说话的频率**：决策点一句、局末一段复盘，其他时候闭嘴。观战时不用解说。\n她自己的闲话默认直接进气泡，不会经过你；只有 `sts-2.murmur` 真送到你面前时，才用 `pet_say` 原样说一句，说完就停。\n**不要用 `pet_act`**：表情写进 `pet_say` 的 `【…】` 标记里，单独调表情会多花一整轮。"
+    }
+  ]
+}

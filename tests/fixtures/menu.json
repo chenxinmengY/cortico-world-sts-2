@@ -1,0 +1,86 @@
+{
+  "ok": true,
+  "request_id": "req_20261022_164646_5638_6",
+  "data": {
+    "state_version": 10,
+    "run_id": "run_unknown",
+    "screen": "MAIN_MENU",
+    "unknown_screen_type": "",
+    "session": {
+      "mode": "singleplayer",
+      "phase": "menu",
+      "control_scope": "local_player"
+    },
+    "in_combat": false,
+    "turn": null,
+    "available_actions": [
+      "open_character_select",
+      "open_timeline",
+      "open_multiplayer_menu",
+      "start_coop_session"
+    ],
+    "combat": null,
+    "run": null,
+    "multiplayer": null,
+    "multiplayer_lobby": null,
+    "map": null,
+    "selection": null,
+    "character_select": null,
+    "timeline": null,
+    "chest": null,
+    "event": null,
+    "crystal_sphere": null,
+    "shop": null,
+    "rest": null,
+    "reward": null,
+    "bundles": null,
+    "modal": null,
+    "game_over": null,
+    "main_menu": {
+      "has_resumable_run": false,
+      "can_abandon": false,
+      "submenu_open": false,
+      "can_open_multiplayer_menu": true,
+      "save_and_quit_available": false,
+      "is_multiplayer_run": false
+    },
+    "agent_view": {
+      "version": 4,
+      "screen": "MAIN_MENU",
+      "run_id": "run_unknown",
+      "session": {
+        "mode": "singleplayer",
+        "phase": "menu",
+        "control_scope": "local_player"
+      },
+      "turn": null,
+      "actions": [
+        "open_character_select",
+        "open_timeline",
+        "open_multiplayer_menu",
+        "start_coop_session"
+      ],
+      "available_actions": [
+        "open_character_select",
+        "open_timeline",
+        "open_multiplayer_menu",
+        "start_coop_session"
+      ],
+      "combat": null,
+      "run": null,
+      "map": null,
+      "selection": null,
+      "character_select": null,
+      "timeline": null,
+      "chest": null,
+      "event": null,
+      "shop": null,
+      "rest": null,
+      "reward": null,
+      "bundles": null,
+      "modal": null,
+      "game_over": null,
+      "glossary": {}
+    }
+  }
+}

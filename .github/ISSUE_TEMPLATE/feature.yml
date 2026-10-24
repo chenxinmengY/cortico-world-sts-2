@@ -1,0 +1,40 @@
+name: 功能建议
+description: 想让她多会一点、少吵一点，或者换一种打法
+title: "[feat] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: scene
+    attributes:
+      label: 什么场景下需要
+      description: 具体到"哪一屏、她当时做了什么、你希望她改做什么"
+      placeholder: 商店里她总是把钱花光，我希望她能留 100 金给后面的诅咒移除
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: 为什么现在的做法不行
+    validations:
+      required: true
+
+  - type: dropdown
+    id: layer
+    attributes:
+      label: 你觉得属于哪一层（不确定就留"不知道"）
+      options:
+        - 不知道
+        - 桥/协议（读不到字段、动作对不上）
+        - 渲染（模型看漏了信息）
+        - 流程（卡住、重复、提醒太吵）
+        - 求解器（建议/接管）
+        - 台词与表现
+        - 配置项
+    validations:
+      required: true
+
+  - type: textarea
+    id: alt
+    attributes:
+      label: 想到的替代方案（可选）
