@@ -2,7 +2,12 @@
   "name": "cortico-world-sts-2",
   "version": "0.1.29",
   "type": "module",
-  "description": "Slay the Spire 2 World for Cortico: the pet plays the run through an in-game HTTP bridge",
+  "description": "让桌宠替你打《杀戮尖塔 2》：出牌、选路、领奖励她自己决定。需要游戏内 mod 提供本地 HTTP 桥，安装步骤见 README。",
+  "locales": {
+    "en": {
+      "description": "Slay the Spire 2 World for Cortico: the pet plays the run by itself through a local HTTP bridge provided by an in-game mod. See the README for setup."
+    }
+  },
   "license": "MIT",
   "author": "chenxinmengY",
   "keywords": [
@@ -24,6 +29,7 @@
   "engines": {
     "node": ">=22"
   },
+  "packageManager": "pnpm@11.28.5",
   "main": "./src/index.ts",
   "cortico": {
     "kind": "world",
@@ -32,17 +38,22 @@
   },
   "files": [
     "src",
+    "scripts/dump-state.cmd",
+    "scripts/dump-state.ps1",
     "describe.json",
+    "docs",
     "README.md",
     "CHANGELOG.md",
-    "THIRD_PARTY_NOTICES.md"
+    "THIRD_PARTY_NOTICES.md",
+    "SECURITY.md"
   ],
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "describe": "tsx scripts/gen-describe.mjs",
     "notices": "tsx scripts/gen-notices.mjs",
-    "check": "tsc --noEmit && vitest run"
+    "check": "tsc --noEmit && vitest run",
+    "prepublishOnly": "pnpm check"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",
