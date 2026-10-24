@@ -14,15 +14,32 @@ jobs:
 
       - uses: pnpm/action-setup@v4
         with:
-          version: 11
+          version: 11.28.5
 
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
 
+      - name: 环境信息
+        run: |
+          node --version
+          pnpm --version
+          echo "--- pnpm-workspace.yaml ---"
+          cat pnpm-workspace.yaml
+
       - name: 安装依赖
-        run: pnpm install --frozen-lockfile
+        run: |
+          set -o pipefail
+          if pnpm install --frozen-lockfile --reporter=append-only 2>&1 | tee install.log; then
+            exit 0
+          fi
+          msg="$(tail -40 install.log)"
+          msg="${msg//'%'/'%25'}"
+          msg="${msg//$'\r'/}"
+          msg="${msg//$'\n'/'%0A'}"
+          echo "::error title=pnpm install failed::$msg"
+          exit 1
 
       - name: 类型检查
         run: pnpm typecheck
