@@ -809,15 +809,25 @@ describe('Sts2World', () => {
     );
     await settled(() => b.requests.length >= 1);
 
+    // 等这一场真的打完（计划只有 5 步）：不打完就取基线，摘要会在这 300ms 里
+    // 迟到，断言就会时对时错。
+    await settled(() => b.requests.length >= 5);
+    await delay(120);
+
     // 敌方回合：桥这一帧只给 save_and_quit，等于没有动作。
     const withActions = b.state;
     const version = Number(withActions.state_version ?? 0);
+    // 量的是「这一帧有没有新增事件」，不是「总共有几条」：上面那串求解器计划
+    // 可能在这一帧之前就把这场打完并发过摘要了（Linux 的事件循环比 Windows 快，
+    // 真机上差的就是这一拍），那时绝对计数本来就是 1。
+    const stateBefore = host.of('sts-2.state').length;
+    const autoBefore = host.of('sts-2.auto').length;
     b.state = { ...structuredClone(withActions), available_actions: [], state_version: version + 1 };
     b.push(b.state);
     await delay(300);
 
-    expect(host.of('sts-2.state')).toHaveLength(0);   // 空帧不推给模型
-    expect(host.of('sts-2.auto')).toHaveLength(0);    // 也没交回
+    expect(host.of('sts-2.state')).toHaveLength(stateBefore);   // 空帧不推给模型
+    expect(host.of('sts-2.auto')).toHaveLength(autoBefore);     // 也没交回
 
     // 回到她的回合：接管自己接着打。
     b.state = { ...structuredClone(withActions), state_version: version + 2 };
