@@ -45,7 +45,17 @@ jobs:
         run: pnpm typecheck
 
       - name: 单元测试
-        run: pnpm test
+        run: |
+          set -o pipefail
+          if pnpm test 2>&1 | tee test.log; then
+            exit 0
+          fi
+          msg="$(tail -60 test.log)"
+          msg="${msg//'%'/'%25'}"
+          msg="${msg//$'\r'/}"
+          msg="${msg//$'\n'/'%0A'}"
+          echo "::error title=单元测试失败::$msg"
+          exit 1
 
       - name: describe.json 是否与源码一致
         run: |
