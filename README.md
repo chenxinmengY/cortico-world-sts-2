@@ -49,6 +49,10 @@ curl.exe http://127.0.0.1:18080/health   # 期望 {"ok":true,...,"status":"ready
 看到绿灯就成了。**装不上？** → [docs/01-install.md](docs/01-install.md)
 **它为什么这么打？** → [docs/07-architecture.md](docs/07-architecture.md)
 
+> **扩展市场里搜不到，是正常的**：市场读的是 npm，这个包目前只在 GitHub。
+> 按上面第 1 步用本地目录（`link:`）安装，功能完全一样；
+> 等它上了 npm，才能在市场里直接搜到。
+
 ## 文档
 
 | 想干什么 | 去哪 |
