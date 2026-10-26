@@ -1,0 +1,54 @@
+name: Publish to npm
+
+# 需要先在仓库里配一个 secret：NPM_TOKEN
+#   Settings → Secrets and variables → Actions → New repository secret
+#   值是 npm 上生成的 Granular Access Token（Read and write + All packages）
+#
+# 配好之后，发版只要：git tag v0.1.30 && git push --tags
+# 本机不需要登录 npm，也不需要验证码。
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write      # 生成 provenance（来源证明），让包页显示 "Built and signed on GitHub Actions"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.28.5
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: 安装依赖
+        run: pnpm install --frozen-lockfile
+
+      - name: 检查（类型 + 163 个测试）
+        run: pnpm check
+
+      - name: 确认 tag 与 package.json 版本一致
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          ver="$(node -p "require('./package.json').version")"
+          echo "tag=$tag version=$ver"
+          if [ "$tag" != "$ver" ]; then
+            echo "::error::tag 是 v$tag，package.json 是 $ver；先 npm version 再打 tag"
+            exit 1
+          fi
+
+      - name: 发布
+        run: npm publish --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
