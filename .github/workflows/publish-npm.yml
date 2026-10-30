@@ -39,6 +39,7 @@ jobs:
         run: pnpm check
 
       - name: 确认 tag 与 package.json 版本一致
+        if: startsWith(github.ref, 'refs/tags/')
         run: |
           tag="${GITHUB_REF_NAME#v}"
           ver="$(node -p "require('./package.json').version")"
@@ -47,6 +48,15 @@ jobs:
             echo "::error::tag 是 v$tag，package.json 是 $ver；先 npm version 再打 tag"
             exit 1
           fi
+
+      - name: 检查 NPM_TOKEN 是否配置
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::error::没有配置 NPM_TOKEN。仓库 Settings → Secrets and variables → Actions → New repository secret，名字填 NPM_TOKEN"
+            exit 1
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: 发布
         run: npm publish --access public --provenance
